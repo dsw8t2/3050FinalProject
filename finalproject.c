@@ -16,6 +16,9 @@ void print_map(char**,int);
 void print_list(path*);
 path* move_inc_dist(char**,path*,path*,int,int,int,int);
 path* deadend_filler(char**,path*);
+void clear(char**,int);
+int activate(path**,char**,path*);
+int adjacent(int,int,int,int);
 
 int main (int argc, char** argv)
 {
@@ -136,10 +139,15 @@ int main (int argc, char** argv)
 
 */
 
-//    *(list+1) = head_F = move(room, *(list+0), *(list+1), dest_L->r, dest_L->c, distance(head_F->r, head_F->c, dest_L->r, dest_L->c),0);
+    *(list+1) = head_F = move(room, *(list+0), *(list+1), dest_L->r, dest_L->c, distance(head_F->r, head_F->c, dest_L->r, dest_L->c),0);
 
-    *(list+0) = head_S = move(room, *(list+0), *(list+1), dest_E->r, dest_E->c, distance(head_S->r, head_S->c, dest_E->r, dest_E->c),1);
-//    *(list+0) = head_S = move(room, *(list+0), *(list+1),  r, column_E, distance(head_S->r, head_S->c, row_E, column_E), 0);
+//    *(list+0) = head_S = move(room, *(list+0), *(list+1), dest_E->r, dest_E->c, distance(head_S->r, head_S->c, dest_E->r, dest_E->c),1);
+
+
+//    if (activate(list,room,dest_E) == 1)
+//        printf("Success\n");
+
+    clear(room,counter);
     print_map(room, counter);
     print_list(*(list+1));
 
@@ -154,7 +162,13 @@ int distance (int row_current, int column_current, int row_dest, int column_dest
     return abs(row_current-row_dest)+abs(column_current-column_dest);
 }
 
-
+int adjacent (int Srow, int Scol, int Frow, int Fcol)
+{
+    if (distance(Srow,Scol,Frow,Fcol) == 1)
+        return 1;
+    else
+        return 0;
+}
 
 path* move (char** room, path* head_S, path* head_F, int row_dest, int column_dest, int dist, int code)
 {
@@ -172,7 +186,162 @@ path* move (char** room, path* head_S, path* head_F, int row_dest, int column_de
         c = '0';
     }
 //    int i;
-//    for (i=0; i<40; i++)
+//    for (i=0; i<60; i++)
+    while (dist != 1)
+    {
+
+
+        if ( (column_dest < head->c || row_dest < head->r) && (*(*(room+head->r)+head->c-1) == ' ' || *(*(room+head->r-1)+head->c) == ' '))
+        {
+/*            if ( *(*(room+head->r-1)+head->c-1) == ' ' && distance(head->r-1, head->c-1, row_dest, column_dest) < dist && column_dest <= head->c-1 && row_dest <= head->r-1) // diagonal NW
+            {
+                *(*(room+head->r-1)+head->c-1) = c;
+                temp = malloc(sizeof(path));
+                temp->r = head->r-1;
+                temp->c = head->c-1;
+                temp->next = head;
+                head = temp;
+
+                dist--;
+            }
+            else if ( *(*(room+head->r+1)+head->c-1) == ' ' && distance(head->r+1, head->c-1, row_dest, column_dest) < dist && column_dest <= head->c-1 && row_dest >= head->r+1) // diagonal SW
+            {
+                *(*(room+head->r+1)+head->c-1) = c;
+                temp = malloc(sizeof(path));
+                temp->r = head->r+1;
+                temp->c = head->c-1;
+                temp->next = head;
+                head = temp;
+
+                dist--;
+            }*/
+
+            // left = c-1, up = r-1
+         if ( row_dest < head->r && *(*(room+head->r-1)+head->c) == ' ' && distance(head->r-1, head->c, row_dest, column_dest) < dist) // up
+            {
+                *(*(room+head->r-1)+head->c) = c;
+                temp = malloc(sizeof(path));
+                temp->r = head->r-1;
+                temp->c = head->c;
+                temp->next = head;
+                head = temp;
+    
+                dist--;
+            }
+            else if ( column_dest < head->c && *(*(room+head->r)+head->c-1) == ' ' && distance(head->r, head->c-1, row_dest, column_dest) < dist) // left
+            {
+                *(*(room+head->r)+head->c-1) = c;
+                temp = malloc(sizeof(path));
+                temp->r = head->r;
+                temp->c = head->c-1;
+                temp->next = head;
+                head = temp;
+
+                dist--;
+            }           
+            else if ( row_dest > head->r && *(*(room+head->r)+head->c+1) == ' ' && distance(head->r, head->c+1, row_dest, column_dest) < dist) // down
+            {
+                *(*(room+head->r+1)+head->c) = c;
+                temp = malloc(sizeof(path));
+                temp->r = head->r+1;
+                temp->c = head->c;
+                temp->next = head;
+                head = temp;
+
+                dist--;
+            }
+            else
+            {
+                if (code)
+                    head_S = head;
+                else
+                    head_F = head;
+                head = move_inc_dist (room, head_S, head_F, row_dest, column_dest, dist,code);
+                dist = distance(head->r, head->c, row_dest, column_dest);
+            }
+        }
+        else if ((column_dest > head->c || row_dest > head->r) && (*(*(room+head->r+1)+head->c) == ' ' || *(*(room+head->r)+head->c+1) == ' '))
+        {
+/*            if ( *(*(room+head->r-1)+head->c+1) == ' ' && distance(head->r-1, head->c+1, row_dest, column_dest) < dist && column_dest >= head->c+1 && row_dest <= head->r-1) // diagonal NE
+            {
+                *(*(room+head->r-1)+head->c+1) = c;
+                temp = malloc(sizeof(path));
+                temp->r = head->r-1;
+                temp->c = head->c+1;
+                temp->next = head;
+                head = temp;
+
+                dist--;
+            }
+            else if ( *(*(room+head->r+1)+head->c+1) == ' ' && distance(head->r+1, head->c+1, row_dest, column_dest) < dist && column_dest >= head->c+1 && row_dest >= head->r+1) // diagonal SW
+            {
+                *(*(room+head->r+1)+head->c+1) = c;
+                temp = malloc(sizeof(path));
+                temp->r = head->r+1;
+                temp->c = head->c+1;
+                temp->next = head;
+                head = temp;
+
+                dist--;
+            }*/
+          if ( column_dest < head->c && *(*(room+head->r-1)+head->c) == ' ' && distance(head->r-1, head->c, row_dest, column_dest) < dist) // up
+            {
+                *(*(room+head->r-1)+head->c) = c;
+                temp = malloc(sizeof(path));
+                temp->r = head->r-1;
+                temp->c = head->c;
+                temp->next = head;
+                head = temp;
+    
+                dist--;
+            }
+            else if ( row_dest < head->r && *(*(room+head->r)+head->c+1) == ' ' && distance(head->r, head->c+1, row_dest, column_dest) < dist) // right
+            {
+                *(*(room+head->r)+head->c+1) = c;
+                temp = malloc(sizeof(path));
+                temp->r = head->r;
+                temp->c = head->c+1;
+                temp->next = head;
+                head = temp;
+
+                dist--;
+            }
+            else if ( row_dest > head->r && *(*(room+head->r+1)+head->c) == ' ' && distance(head->r+1, head->c, row_dest, column_dest) < dist) // down
+            {
+                *(*(room+head->r+1)+head->c) = c;
+                temp = malloc(sizeof(path));
+                temp->r = head->r+1;
+                temp->c = head->c;
+                temp->next = head;
+                head = temp;
+
+                dist--;
+            }
+            else
+            {
+                if (code)
+                    head_S = head;
+                else
+                    head_F = head;
+                head = move_inc_dist (room, head_S, head_F, row_dest, column_dest, dist,code);
+                dist = distance(head->r, head->c, row_dest, column_dest);
+            }
+        }
+        else
+        {
+            if (code)
+                head_S = head;
+            else
+                head_F = head;
+            head = move_inc_dist (room, head_S, head_F, row_dest, column_dest, dist, code);
+            dist = distance (head->r, head->c, row_dest, column_dest);
+        }
+
+        if (abs(column_dest-head->c) == 1 && abs(row_dest-head->r) == 1)
+            return head;
+    }
+/*            
+
     while (dist != 1)
     {
          if ( column_dest < head->c && *(*(room+head->r)+head->c-1) == ' ' && distance(head->r, head->c-1, row_dest, column_dest) < dist) // left
@@ -229,7 +398,7 @@ path* move (char** room, path* head_S, path* head_F, int row_dest, int column_de
             dist = distance(head->r, head->c, row_dest, column_dest);
         }
     }
-
+*/
     return head;
 }
 
@@ -252,20 +421,7 @@ path* move_inc_dist (char** room, path* head_S, path* head_F, int row_dest, int 
 
     while (1)
     {
-         if ( *(*(room+head->r)+head->c-1) == ' ') // left
-        {
-            *(*(room+head->r)+head->c-1) = c;
-            temp = malloc(sizeof(path));
-            temp->r = head->r;
-            temp->c = head->c-1;
-            temp->next = head;
-            head = temp;
-
-            if (distance(head->r, head->c, row_dest, column_dest) < dist)
-                return head;
-            dist++;
-        }
-        else if ( *(*(room+head->r-1)+head->c) == ' ') // up
+        if ( *(*(room+head->r-1)+head->c) == ' ') // up
         {
             *(*(room+head->r-1)+head->c) = c;
             temp = malloc(sizeof(path));
@@ -278,7 +434,20 @@ path* move_inc_dist (char** room, path* head_S, path* head_F, int row_dest, int 
                 return head;
             dist++;
         }
-        else if ( *(*(room+head->r+1)+head->c) == ' ') // right
+        else if ( *(*(room+head->r)+head->c-1) == ' ') // left
+        {
+            *(*(room+head->r)+head->c-1) = c;
+            temp = malloc(sizeof(path));
+            temp->r = head->r;
+            temp->c = head->c-1;
+            temp->next = head;
+            head = temp;
+
+            if (distance(head->r, head->c, row_dest, column_dest) < dist)
+                return head;
+            dist++;
+        }
+        else if ( *(*(room+head->r+1)+head->c) == ' ') // down
         {
             *(*(room+head->r+1)+head->c) = c;
             temp = malloc(sizeof(path));
@@ -291,7 +460,7 @@ path* move_inc_dist (char** room, path* head_S, path* head_F, int row_dest, int 
                 return head;
             dist++;
         }
-        else if ( *(*(room+head->r)+head->c+1) == ' ') // down
+        else if ( *(*(room+head->r)+head->c+1) == ' ') // right
         {
             *(*(room+head->r)+head->c+1) = c;
             temp = malloc(sizeof(path));
@@ -314,7 +483,7 @@ path* move_inc_dist (char** room, path* head_S, path* head_F, int row_dest, int 
 path* deadend_filler (char** room, path* head)
 {
     path* temp = malloc(sizeof(path));
-    if ( *(*(room+head->r)+head->c) == '1' || *(*(room+head->r)+head->c) == '2')
+    if ( *(*(room+head->r)+head->c) == '1' || *(*(room+head->r)+head->c) == '0')
     {
         *(*(room+head->r)+head->c) = 'x';
         temp = head;
@@ -339,3 +508,36 @@ void print_list (path* head)
         head = head->next;
     }
 }
+
+void clear (char** room, int counter)
+{
+    int row, col;
+    for (row=0; row<counter; row++)
+        for (col=0; col<strlen(*(room+row)); col++)
+            if (*(*(room+row)+col) == 'x')
+                *(*(room+row)+col) = ' ';
+}
+
+int activate (path** list, char** room, path* dest)
+{
+//    char* address_S = &*(list+0);
+//    char* address_F = &*(list+1);
+
+    path* head_S = *(list+0);
+    
+    int S=0;
+
+    while (S != 1)
+    {
+        if (S != 0)
+        {
+            *(list+0) = move(room, head_S, *(list+1), dest->r, dest->c, distance(head_S->r, head_S->c, dest->r, dest->c), 0);
+            if (distance(head_S->r, head_S->c, dest->r, dest->c) == 1)
+                S = 1;
+        }
+    }
+    return 1;
+}
+
+//path* reset_path (char** room, path* head) // resets positions to spaces for a potentially faster route
+
