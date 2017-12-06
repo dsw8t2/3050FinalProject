@@ -12,7 +12,5 @@ Error Reporting:
 Exit code 1: incorrect number of command line arguments
 Exit code 2: input file failed to open 
 Exit code 3: input file failed to close
-Exit code 4: output file failed to open
-Exit code 5: output file failed to close
-Exit code 6: parsing error invalid character encountered
-Exit code 7: parsing error empty file
+Exit code 4: parsing error invalid character encountered
+Exit code 5: parsing error empty file
