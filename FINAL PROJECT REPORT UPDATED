@@ -1,0 +1,14 @@
+Motion Planning of Robots
+John Umstead, Daniel Weiss, Sahand Sadri, Kyle Deppe
+Professor Rohit Chadha
+CS 3050
+December 2, 2017
+
+
+1	Algorithms
+
+The algorithm we used is a very good way to accomplish the goal. the project is going to take the first robot, START, and evaluate the absolute distance to the END destination. Once it figures this out, it will continue moving to decrease the distance towards the target. If the robot cannot decrease the distance, it will move in a separate direction to increase the distance toward the target until it is able to decrease the distance once again. The time-complexity of this algorithm would be at worst case O(R*C) which R stands for Rows and C stands for Columns of the array we put the map into. The most similar example of an algorithm that we have used in class that resembles ours would be a breadth first search.
+
+2	Contributions
+
+John Umstead began all the early work of the project and got it running. Sahand then came in and helped with the main algorithms of the code to make them better and more efficient. Kyle and Daniel contributed to writing helper functions, fixing bugs, checking for errors, and keeping GitHub organized. Daniel also wrote the readme and the makefile. This was mainly done in sessions where we would meet up at the library or individual efforts at home and then uploaded to GitHub.
