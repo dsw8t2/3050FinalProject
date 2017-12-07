@@ -10,11 +10,11 @@ typedef struct Path {
 } path;
 
 int distance(int,int,int,int);
-//path* move(char**,path*,path*,path*,int);
-path* move(char**,path*,path*,int,int,int,int);
+path* move(char**,path*,path*,path*,int);
+//path* move(char**,path*,path*,int,int,int,int);
 void print_map(char**,int);
-//path* move_inc_dist(char**,path*,path*,int,int);
-path* move_inc_dist(char**,path*,path*,int,int,int,int);
+path* move_inc_dist(char**,path*,path*,int,int);
+//path* move_inc_dist(char**,path*,path*,int,int,int,int);
 path* deadend_filler(char**,path*);
 void clear(char**,int);
 int activate(path**,char**,path*);
@@ -113,9 +113,9 @@ int main (int argc, char** argv)
 
 //    *(list+1) = head_F = move(room, *(list+0), *(list+1), dest_L->r, dest_L->c, distance(head_F->r, head_F->c, dest_L->r, dest_L->c),0);
 
-    *(list+0) = head_S = move(room, *(list+0), *(list+1), dest_E->r, dest_E->c, distance(head_S->r, head_S->c, dest_E->r, dest_E->c),1);
+//    *(list+0) = head_S = move(room, *(list+0), *(list+1), dest_E->r, dest_E->c, distance(head_S->r, head_S->c, dest_E->r, dest_E->c),1);
 
-//    *(list+0) = head_S = move(room, *(list+0), *(list+1), dest_E, 1);
+    *(list+0) = head_S = move(room, *(list+0), *(list+1), dest_E, 1);
 //    *(list+1) = head_F = move(room, *(list+0), *(list+1), dest_L, 0);
     clear(room,counter);
     print_map(room, counter);
@@ -151,7 +151,7 @@ void rewind_path (char** room, path* head)
 
 
 //OLD ALGORITHM, works.
-
+/*
 path* move (char** room, path* head_S, path* head_F, int row_dest, int column_dest, int dist, int code)
 {
     path* head;
@@ -249,16 +249,15 @@ path* move (char** room, path* head_S, path* head_F, int row_dest, int column_de
     }
     return head;
 }
-
+*/
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ///  New algorithm, broken
-/*
+
 
 path* move (char** room, path* head_S, path* head_F, path* dest, int code)
 {
     char c;
-    path* temp;
     path* head;
     path* head2;
 
@@ -348,6 +347,7 @@ path* move (char** room, path* head_S, path* head_F, path* dest, int code)
                 {
                     head = move_right(room,head,c);
                 }
+            }
             else
             {
                 head = move_inc_dist(room,head,dest,code,3);
@@ -430,7 +430,6 @@ path* move (char** room, path* head_S, path* head_F, path* dest, int code)
 path* move_inc_dist(char** room, path* head, path* dest, int code, int quadrant)
 {
     char c;
-    path* temp;
 
     if (code)
         c = '1';
@@ -602,18 +601,17 @@ path* move_inc_dist(char** room, path* head, path* dest, int code, int quadrant)
             return head;
         }
     }
-    }
     return head;
 }
 
-*/
+
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // old algorithm, works.
 //
-
+/*
 
 path* move_inc_dist (char** room, path* head_S, path* head_F, int row_dest, int column_dest, int dist, int code)
 {
@@ -671,7 +669,7 @@ path* move_inc_dist (char** room, path* head_S, path* head_F, int row_dest, int 
 
     return head;
 }
-
+*/
 path* deadend_filler (char** room, path* head)
 {
     path* temp = malloc(sizeof(path));
