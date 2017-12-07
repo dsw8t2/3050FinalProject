@@ -2,12 +2,15 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include "input_error.h"
 
 typedef struct Path {
     int r;
     int c;
     struct Path *next;
 } path;
+
+int check_str(char*);
 
 int distance(int,int,int,int);
 int adjacent(int,int,path*);
@@ -39,6 +42,9 @@ int main (int argc, char** argv)
     FILE *fp;
     char** room;
   
+    if (argc != 2)
+        exit(INCORRECT_NUMBER_OF_COMMAND_LINE_ARGUMENTS);
+
     path** list = malloc(sizeof(path*)*2);
     path* head_S = malloc(sizeof(path));
     path* head_F = malloc(sizeof(path));
@@ -54,22 +60,40 @@ int main (int argc, char** argv)
     if ((fp = fopen(*(argv+1),"r")) == NULL)
     {
         printf("Invalid file.\n");
-        return 0;
+        exit(INPUT_FILE_FAILED_TO_OPEN);
     }
     else
     {
         while(!feof(fp))
         {
             if (fgets(*(room+counter), 99, fp) == NULL)
+            {
                 break;
+            }
+            /*    if (*(*(room+counter)+0) == NULL)
+                {
+                    printf("Empty file\n");
+                    exit(PARSING_ERROR_EMPTY_FILE);
+                }
+                else
+                    break;
+            }*/
             else
             {
+ //               printf("%d\n", (int)strlen(*(room+counter)));
+            /*    if (check_str(*(room+counter)))
+                {
+                    freeStringArray(room,counter);
+                    printf("Invalid input\n");
+                    exit(PARSING_ERROR_INVALID_CHARACTER_ENCOUNTERED);
+                }*/
                 counter++;
                 room = realloc(room,sizeof(char *)*(counter+1));
                 *(room+counter) = (char *)malloc(99);
             }
         }
-        fclose(fp);
+        if (fclose(fp) != 0)
+            exit(INPUT_FILE_FAILED_TO_CLOSE);
     }
 
 
@@ -138,6 +162,19 @@ int main (int argc, char** argv)
 
     return 0;
 }
+
+int check_str (char* string)
+{
+    int i;
+
+    for (i=0; i<strlen(string); i++)
+    {
+        if (*(string+i) != ' ' || *(string+i) != '#' || *(string+i) != 'S' || *(string+i) != 'E' || *(string+i) != 'F' || *(string+i) != 'L')
+            return 1;
+    }
+    return 0;
+}
+
 
 int distance (int row_current, int column_current, int row_dest, int column_dest)
 {
