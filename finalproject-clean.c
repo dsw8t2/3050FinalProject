@@ -21,6 +21,8 @@ int activate(path**,char**,path*);
 int adjacent(path*,path*);
 void rewind_path(char**,path*);
 
+void freeStringArray(char**, int counter);
+
 path* move_left(char**,path*,char);
 path* move_right(char**,path*,char);
 path* move_up(char**,path*,char);
@@ -154,7 +156,17 @@ void rewind_path (char** room, path* head)
     head->c = 0;
 }
 
+// Frees a string
+void freeStringArray(char** string, int counter)
+{
+	int i = 0;
 
+	for (i = 0; i < counter; i++) {
+		free(*(string + i));
+	}
+
+	free(string);
+}
 
 //OLD ALGORITHM, works.
 /*
