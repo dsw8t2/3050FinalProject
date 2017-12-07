@@ -49,9 +49,9 @@ int main (int argc, char** argv)
     room = malloc(sizeof(char *));
     *(room+counter) = (char *)malloc(99);
 /*
-    char t = '#';
+    char t = 'x';
     int code = 1;
-    printf("%d\n", abs((int)t-code));
+    printf("%d\n", t-code);
     return 0;
 */
 
@@ -157,7 +157,7 @@ void rewind_path (char** room, path* head)
 
 
 //OLD ALGORITHM, works.
-/*
+
 path* move (char** room, path* head_S, path* head_F, int row_dest, int column_dest, int dist, int code)
 {
     path* head;
@@ -178,8 +178,8 @@ path* move (char** room, path* head_S, path* head_F, int row_dest, int column_de
     {
 
 
-        if ( (column_dest < head->c || row_dest < head->r) && (*(*(room+head->r)+head->c-1) == ' ' || *(*(room+head->r-1)+head->c) == ' '))
-        { // comment out these diagonals.
+        if ( (column_dest < head->c || row_dest < head->r) && (*(*(room+head->r)+head->c-1) == ' ' || *(*(room+head->r-1)+head->c) == ' ' || abs(atoi(*(room+head->r-1)+head->c)-code)==1 || abs(atoi(*(room+head->r-1)+head->c)-code)==1))
+        { 
 
         // left = c-1, up = r-1
          if ( row_dest < head->r && *(*(room+head->r-1)+head->c) == ' ' && distance(head->r-1, head->c, row_dest, column_dest) < dist) // up
@@ -255,11 +255,11 @@ path* move (char** room, path* head_S, path* head_F, int row_dest, int column_de
     }
     return head;
 }
-*/
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ///  New algorithm, broken
-
+/*
 
 path* move (char** room, path* head_S, path* head_F, path* dest, int code)
 {
@@ -284,7 +284,7 @@ path* move (char** room, path* head_S, path* head_F, path* dest, int code)
     
 
     int i;
-    for (i=0; i<40; i++)
+    for (i=0; i<50; i++)
     {
         if (adjacent(head,dest))
             return head;
@@ -298,20 +298,23 @@ path* move (char** room, path* head_S, path* head_F, path* dest, int code)
 
         if ( dest->r < head->r && dest->c < head->c) // Quadrant 1, top left
         {
-            if (*(*(room+head->r-1)+head->c) == ' ' || *(*(room+head->r)+head->c-1) == ' ' || abs((int)*(*(room+head->r-1)+head->c)-code)==1 || abs((int)*(*(room+head->r)+head->c-1)-code))
+            if (*(*(room+head->r-1)+head->c) == ' ' || *(*(room+head->r)+head->c-1) == ' ' || abs(atoi(*(room+head->r-1)+head->c)-code)==1 || abs(atoi(*(room+head->r)+head->c-1)-code))
             {
-                if ((*(*(room+head->r-1)+head->c-1) == ' ' || abs((int)*(*(room+head->r-1)+head->c-1)-code)) && *(*(room+head->r-1)+head->c-1) != '#') // NW. -2 dist.
+                printf("hit\n");
+                if ((*(*(room+head->r-1)+head->c-1) == ' ' || abs(atoi(*(room+head->r-1)+head->c-1)-code)==1) && *(*(room+head->r-1)+head->c-1) != '#' && *(*(room+head->r-1)+head->c-1) != 'x') // NW. -2 dist.
                 {
                     head = move_NW(room,head,c);                  
                 }
-                else if ((*(*(room+head->r-1)+head->c) == ' ' || abs((int)*(*(room+head->r-1)+head->c)-code)) && *(*(room+head->r-1)+head->c) != '#') // Up, -1 dist.
+                else if ((*(*(room+head->r-1)+head->c) == ' ' || abs(atoi(*(room+head->r-1)+head->c)-code)==1) && *(*(room+head->r-1)+head->c) != '#' && *(*(room+head->r-1)+head->c) != 'x') // Up, -1 dist.
                 {
                     head = move_up(room,head,c);
                 }
-                else if ((*(*(room+head->r)+head->c-1) == ' ' || abs((int)*(*(room+head->r)+head->c-1)-code)) && *(*(room+head->r)+head->c-1) != '#') // Left, -1 dist.
+                else if ((*(*(room+head->r)+head->c-1) == ' ' || abs(atoi(*(room+head->r)+head->c-1)-code)==1) && *(*(room+head->r)+head->c-1) != '#' && *(*(room+head->r)+head->c-1) != 'x') // Left, -1 dist.
                 {
                     head = move_left(room,head,c);
                 }
+                else
+                    head = move_inc_dist(room,head,dest,code,1);
             }
             else
             {
@@ -320,20 +323,22 @@ path* move (char** room, path* head_S, path* head_F, path* dest, int code)
         }
         else if (dest->r > head->r && dest->c < head->c) // Quadrant 2, bottom left
         {
-            if (*(*(room+head->r+1)+head->c) == ' ' || *(*(room+head->r)+head->c-1) == ' ' || abs((int)*(*(room+head->r+1)+head->c)-code) || abs((int)*(*(room+head->r)+head->c-1)-code))
+            if (*(*(room+head->r+1)+head->c) == ' ' || *(*(room+head->r)+head->c-1) == ' ' || abs(atoi(*(room+head->r+1)+head->c)-code) || abs(atoi(*(room+head->r)+head->c-1)-code))
             {            
-                if ((*(*(room+head->r+1)+head->c-1) == ' ' || abs((int)*(*(room+head->r+1)+head->c-1)-code)) && *(*(room+head->r+1)+head->c-1) != '#') // SW. -2 dist.
+                if ((*(*(room+head->r+1)+head->c-1) == ' ' || abs(atoi(*(room+head->r+1)+head->c-1)-code)) && *(*(room+head->r+1)+head->c-1) != '#' && *(*(room+head->r+1)+head->c-1) != 'x') // SW. -2 dist.
                 {
                     head = move_SW(room,head,c);                   
                 }
-                else if ((*(*(room+head->r+1)+head->c) == ' ' || abs((int)*(*(room+head->r+1)+head->c)-code)) && *(*(room+head->r+1)+head->c) != '#') // Down, -1 dist.
+                else if ((*(*(room+head->r+1)+head->c) == ' ' || abs(atoi(*(room+head->r+1)+head->c)-code)) && *(*(room+head->r+1)+head->c) != '#' && *(*(room+head->r+1)+head->c) != 'x') // Down, -1 dist.
                 {
                     head = move_down(room,head,c);
                 }
-                else if ((*(*(room+head->r)+head->c-1) == ' ' || abs((int)*(*(room+head->r)+head->c-1)-code)) && *(*(room+head->r)+head->c-1) != '#') // Left, -1 dist.
+                else if ((*(*(room+head->r)+head->c-1) == ' ' || abs(atoi(*(room+head->r)+head->c-1)-code)) && *(*(room+head->r)+head->c-1) != '#' && *(*(room+head->r)+head->c-1) != 'x') // Left, -1 dist.
                 {
                     head = move_left(room,head,c);
                 }
+                else
+                    head = move_inc_dist(room,head,dest,code,2);
             }
             else
             {
@@ -342,20 +347,23 @@ path* move (char** room, path* head_S, path* head_F, path* dest, int code)
         }
         else if (dest->r < head->r && dest->c > head->c) // Qaudrant 3, top right
         {
-            if (*(*(room+head->r-1)+head->c) == ' ' || *(*(room+head->r)+head->c+1) == ' ' || abs((int)*(*(room+head->r-1)+head->c)-code) || abs((int)*(*(room+head->r)+head->c+1)-code))
+            if (*(*(room+head->r-1)+head->c) == ' ' || *(*(room+head->r)+head->c+1) == ' ' || abs(atoi(*(room+head->r-1)+head->c)-code)==1 || abs(atoi(*(room+head->r)+head->c+1)-code)==1)
             {
-                if ((*(*(room+head->r-1)+head->c+1) == ' ' || abs((int)*(*(room+head->r-1)+head->c+1)-code)) && *(*(room+head->r-1)+head->c+1) != '#') // NE. -2 dist.
+                printf("Quad 3\n");
+                if ((*(*(room+head->r-1)+head->c+1) == ' ' || abs(atoi(*(room+head->r-1)+head->c+1)-code))==1 && *(*(room+head->r-1)+head->c+1) != '#' && *(*(room+head->r-1)+head->c+1) != 'x') // NE. -2 dist.
                 {
                     head = move_NE(room,head,c);                  
                 }
-                else if ((*(*(room+head->r-1)+head->c) == ' ' || abs((int)*(*(room+head->r-1)+head->c)-code)) && *(*(room+head->r-1)+head->c) != '#') // Up, -1 dist.
+                else if ((*(*(room+head->r-1)+head->c) == ' ' || abs(atoi(*(room+head->r-1)+head->c)-code))==1 && *(*(room+head->r-1)+head->c) != '#' && *(*(room+head->r-1)+head->c) != 'x') // Up, -1 dist.
                 {
                     head = move_up(room,head,c);
                 }
-                else if ((*(*(room+head->r)+head->c+1) == ' ' || abs((int)*(*(room+head->r)+head->c+1)-code)) && *(*(room+head->r)+head->c+1) != '#') // Right, -1 dist.
+                else if ((*(*(room+head->r)+head->c+1) == ' ' || abs(atoi(*(room+head->r)+head->c+1)-code))==1 && *(*(room+head->r)+head->c+1) != '#' && *(*(room+head->r)+head->c+1) != 'x') // Right, -1 dist.
                 {
                     head = move_right(room,head,c);
                 }
+                else
+                    head = move_inc_dist(room,head,dest,code,3);
             }
             else
             {
@@ -364,20 +372,22 @@ path* move (char** room, path* head_S, path* head_F, path* dest, int code)
         }
         else if (dest->r > head->r && dest->c > head->c)  // Quadrant 4, bottom right
         {
-            if (*(*(room+head->r+1)+head->c) == ' ' || *(*(room+head->r)+head->c+1) == ' ' || abs((int)*(*(room+head->r+1)+head->c)-code) || abs((int)*(*(room+head->r)+head->c+1)-code))
+            if (*(*(room+head->r+1)+head->c) == ' ' || *(*(room+head->r)+head->c+1) == ' ' || abs(atoi(*(room+head->r+1)+head->c)-code)==1 || abs(atoi(*(room+head->r)+head->c+1)-code)==1)
             {
-                if ((*(*(room+head->r+1)+head->c+1) == ' ' || abs((int)*(*(room+head->r+1)+head->c+1)-code)) && *(*(room+head->r+1)+head->c+1) != '#') // SE. -2 dist.
+                if ((*(*(room+head->r+1)+head->c+1) == ' ' || abs(atoi(*(room+head->r+1)+head->c+1)-code)==1) && *(*(room+head->r+1)+head->c+1) != '#' && *(*(room+head->r)+head->c+1) != 'x') // SE. -2 dist.
                 {
                     head = move_SE(room,head,c);                   
                 }
-                else if ((*(*(room+head->r+1)+head->c) == ' ' || abs((int)*(*(room+head->r+1)+head->c)-code)) && *(*(room+head->r+1)+head->c) != '#') // Down, -1 dist.
+                else if ((*(*(room+head->r+1)+head->c) == ' ' || abs(atoi(*(room+head->r+1)+head->c)-code)==1) && *(*(room+head->r+1)+head->c) != '#' && *(*(room+head->r+1)+head->c) != 'x') // Down, -1 dist.
                 {
                     head = move_down(room,head,c);
                 }
-                else if ((*(*(room+head->r)+head->c+1) == ' ' || abs((int)*(*(room+head->r)+head->c+1)-code)) && *(*(room+head->r)+head->c+1) != '#') // Right, -1 dist.
+                else if ((*(*(room+head->r)+head->c+1) == ' ' || abs(atoi(*(room+head->r)+head->c+1)-code)==1) && *(*(room+head->r)+head->c+1) != '#' && *(*(room+head->r)+head->c+1) != 'x') // Right, -1 dist.
                 {
                     head = move_right(room,head,c);
                 }
+                else
+                    head = move_inc_dist(room,head,dest,code,4);
             }
             else
             {
@@ -388,7 +398,7 @@ path* move (char** room, path* head_S, path* head_F, path* dest, int code)
         {
             if (dest->r < head->r)
             {
-                if ((*(*(room+head->r-1)+head->c) == ' ' || abs((int)*(*(room+head->r-1)+head->c)-code)) && *(*(room+head->r-1)+head->c) != '#')
+                if ((*(*(room+head->r-1)+head->c) == ' ' || abs(atoi(*(room+head->r-1)+head->c)-code)==1) && *(*(room+head->r-1)+head->c) != '#' && *(*(room+head->r-1)+head->c) != 'x')
                 {
                     head = move_up(room,head,c);
                 }
@@ -397,7 +407,7 @@ path* move (char** room, path* head_S, path* head_F, path* dest, int code)
             }
             else
             {
-                if ((*(*(room+head->r+1)+head->c) == ' ' || abs((int)*(*(room+head->r+1)+head->c)-code)) && *(*(room+head->r+1)+head->c) != '#')
+                if ((*(*(room+head->r+1)+head->c) == ' ' || abs(atoi(*(room+head->r+1)+head->c)-code)==1) && *(*(room+head->r+1)+head->c) != '#' && *(*(room+head->r+1)+head->c) != 'x')
                 {
                     head = move_down(room,head,c);
                 }
@@ -409,7 +419,7 @@ path* move (char** room, path* head_S, path* head_F, path* dest, int code)
         {
             if (dest->c < head->c)
             {
-                if ((*(*(room+head->r)+head->c-1) == ' ' || abs((int)*(*(room+head->r)+head->c-1)-code)) && *(*(room+head->r)+head->c-1) != '#')
+                if ((*(*(room+head->r)+head->c-1) == ' ' || abs(atoi(*(room+head->r)+head->c-1)-code)==1) && *(*(room+head->r)+head->c-1) != '#' && *(*(room+head->r)+head->c-1) != 'x')
                 {
                     head = move_left(room,head,c);
                 }
@@ -418,7 +428,7 @@ path* move (char** room, path* head_S, path* head_F, path* dest, int code)
             }
             else
             {
-                if ((*(*(room+head->r)+head->c+1) == ' ' || abs((int)*(*(room+head->r)+head->c+1)-code)) && *(*(room+head->r)+head->c+1) != '#')
+                if ((*(*(room+head->r)+head->c+1) == ' ' || abs(atoi(*(room+head->r)+head->c+1)-code)==1) && *(*(room+head->r)+head->c+1) != '#' && *(*(room+head->r)+head->c+1) != 'x')
                 {
                     head = move_right(room,head,c);
                 }
@@ -449,25 +459,25 @@ path* move_inc_dist(char** room, path* head, path* dest, int code, int quadrant)
     {
         case 1: 
         {
-            if (*(*(room+head->r+1)+head->c) == ' ' || *(*(room+head->r)+head->c+1) == ' ' || abs((int)*(*(room+head->r+1)+head->c)-code) == 1 || abs((int)*(*(room+head->r)+head->c+1)-code) == 1)
+            if (*(*(room+head->r+1)+head->c) == ' ' || *(*(room+head->r)+head->c+1) == ' ' || abs(atoi(*(room+head->r+1)+head->c)-code) == 1 || abs(atoi(*(room+head->r)+head->c+1)-code) == 1)
             {
-                if ((*(*(room+head->r+1)+head->c-1) == ' ' || abs((int)*(*(room+head->r+1)+head->c-1)-code)) && *(*(room+head->r+1)+head->c-1) != '#') // SW, no change in dist.
+                if ((*(*(room+head->r+1)+head->c-1) == ' ' || abs(atoi(*(room+head->r+1)+head->c-1)-code)==1) && *(*(room+head->r+1)+head->c-1) != '#' && *(*(room+head->r+1)+head->c-1) != 'x') // SW, no change in dist.
                 {
                     head = move_SW(room,head,c);
                 }
-                else if ((*(*(room+head->r-1)+head->c+1) == ' ' || abs((int)*(*(room+head->r-1)+head->c+1)-code)) && *(*(room+head->r-1)+head->c+1) != '#') // NE, no change in dist.
+                else if ((*(*(room+head->r-1)+head->c+1) == ' ' || abs(atoi(*(room+head->r-1)+head->c+1)-code)==1) && *(*(room+head->r-1)+head->c+1) != '#' && *(*(room+head->r+1)+head->c+1) != 'x') // NE, no change in dist.
                 {
                     head = move_NE(room,head,c);
                 }                
-                else if ((*(*(room+head->r)+head->c+1) == ' ' || abs((int)*(*(room+head->r)+head->c+1)-code)) && *(*(room+head->r)+head->c+1) != '#') // Right, +1 dist.
+                else if ((*(*(room+head->r)+head->c+1) == ' ' || abs(atoi(*(room+head->r)+head->c+1)-code)==1) && *(*(room+head->r)+head->c+1) != '#' && *(*(room+head->r)+head->c+1) != 'x') // Right, +1 dist.
                 {
                     head = move_right(room,head,c);
                 }
-                else if ((*(*(room+head->r+1)+head->c) == ' ' || abs((int)*(*(room+head->r+1)+head->c)-code)) && *(*(room+head->r+1)+head->c) != '#') // Down, +1 dist.
+                else if ((*(*(room+head->r+1)+head->c) == ' ' || abs(atoi(*(room+head->r+1)+head->c)-code)==1) && *(*(room+head->r+1)+head->c) != '#' && *(*(room+head->r+1)+head->c) != 'x') // Down, +1 dist.
                 {
                     head = move_down(room,head,c);
                 }
-                else if ((*(*(room+head->r+1)+head->c+1) == ' ' || abs((int)*(*(room+head->r+1)+head->c+1)-code)) && *(*(room+head->r+1)+head->c+1) != '#') // SE, +2 dist.
+                else if ((*(*(room+head->r+1)+head->c+1) == ' ' || abs(atoi(*(room+head->r+1)+head->c+1)-code)==1) && *(*(room+head->r+1)+head->c+1) != '#' && *(*(room+head->r+1)+head->c+1) != 'x') // SE, +2 dist.
                 {
                     head = move_SE(room,head,c);
                 }
@@ -480,25 +490,25 @@ path* move_inc_dist(char** room, path* head, path* dest, int code, int quadrant)
         }
         case 2:
         {
-            if (*(*(room+head->r-1)+head->c) == ' ' || *(*(room+head->r)+head->c+1) == ' ' || abs((int)*(*(room+head->r-1)+head->c)-code) == 1 || abs((int)*(*(room+head->r)+head->c+1)-code) == 1)
+            if (*(*(room+head->r-1)+head->c) == ' ' || *(*(room+head->r)+head->c+1) == ' ' || abs(atoi(*(room+head->r-1)+head->c)-code) == 1 || abs(atoi(*(room+head->r)+head->c+1)-code) == 1)
             {
-                if ((*(*(room+head->r-1)+head->c-1) == ' ' || abs((int)*(*(room+head->r-1)+head->c-1)-code)) && *(*(room+head->r-1)+head->c-1) != '#') // NW, no change in dist.
+                if ((*(*(room+head->r-1)+head->c-1) == ' ' || abs(atoi(*(room+head->r-1)+head->c-1)-code)==1) && *(*(room+head->r-1)+head->c-1) != '#' && *(*(room+head->r-1)+head->c-1) != 'x') // NW, no change in dist.
                 {
                     head = move_NW(room,head,c);
                 }
-                else if ((*(*(room+head->r+1)+head->c+1) == ' ' || abs((int)*(*(room+head->r+1)+head->c+1)-code)) && *(*(room+head->r+1)+head->c+1) != '#') // SE, no change in dist.
+                else if ((*(*(room+head->r+1)+head->c+1) == ' ' || abs(atoi(*(room+head->r+1)+head->c+1)-code)==1) && *(*(room+head->r+1)+head->c+1) != '#' && *(*(room+head->r+1)+head->c+1) != 'x') // SE, no change in dist.
                 {
                     head = move_SE(room,head,c);
                 }                
-                else if ((*(*(room+head->r)+head->c+1) == ' ' || abs((int)*(*(room+head->r)+head->c+1)-code)) && *(*(room+head->r)+head->c+1) != '#') // Right, +1 dist.
+                else if ((*(*(room+head->r)+head->c+1) == ' ' || abs(atoi(*(room+head->r)+head->c+1)-code)==1) && *(*(room+head->r)+head->c+1) != '#' && *(*(room+head->r)+head->c+1) != 'x') // Right, +1 dist.
                 {
                     head = move_right(room,head,c);
                 }
-                else if ((*(*(room+head->r-1)+head->c) == ' ' || abs((int)*(*(room+head->r-1)+head->c)-code)) && *(*(room+head->r-1)+head->c) != '#') // Up, +1 dist.
+                else if ((*(*(room+head->r-1)+head->c) == ' ' || abs(atoi(*(room+head->r-1)+head->c)-code)==1) && *(*(room+head->r-1)+head->c) != '#' && *(*(room+head->r-1)+head->c) != 'x') // Up, +1 dist.
                 {
                     head = move_up(room,head,c);
                 }
-                else if ((*(*(room+head->r-1)+head->c+1) == ' ' || abs((int)*(*(room+head->r-1)+head->c+1)-code)) && *(*(room+head->r-1)+head->c+1) != '#') // NE, +2 dist.
+                else if ((*(*(room+head->r-1)+head->c+1) == ' ' || abs(atoi(*(room+head->r-1)+head->c+1)-code)==1) && *(*(room+head->r-1)+head->c+1) != '#' && *(*(room+head->r-1)+head->c+1) != 'x') // NE, +2 dist.
                 {
                     head = move_NE(room,head,c);
                 }
@@ -511,26 +521,34 @@ path* move_inc_dist(char** room, path* head, path* dest, int code, int quadrant)
         }
         case 3:
         {
-            if (*(*(room+head->r+1)+head->c) == ' ' || *(*(room+head->r)+head->c-1) == ' ' || abs((int)*(*(room+head->r+1)+head->c)-code) == 1 || abs((int)*(*(room+head->r)+head->c-1)-code) == 1)
+            printf("Inc q3\n");
+            if (*(*(room+head->r+1)+head->c) == ' ' || *(*(room+head->r)+head->c-1) == ' ' || abs(atoi(*(room+head->r+1)+head->c)-code) == 1 || abs(atoi(*(room+head->r)+head->c-1)-code) == 1)
             {
-                if ((*(*(room+head->r-1)+head->c-1) == ' ' || abs((int)*(*(room+head->r-1)+head->c-1)-code)) && *(*(room+head->r-1)+head->c-1) != '#') // NW, no change in dist.
+                printf("Hit\n");
+                if ((*(*(room+head->r-1)+head->c-1) == ' ' || abs(atoi(*(room+head->r-1)+head->c-1)-code)==1) && *(*(room+head->r-1)+head->c-1) != '#' && *(*(room+head->r-1)+head->c-1) != 'x') // NW, no change in dist.
                 {
+                    printf("Test\n");
                     head = move_NW(room,head,c);
                 }
-                else if ((*(*(room+head->r+1)+head->c+1) == ' ' || abs((int)*(*(room+head->r+1)+head->c+1)-code)) && *(*(room+head->r+1)+head->c+1) != '#') // SE, no change in dist.
+                else if ((*(*(room+head->r+1)+head->c+1) == ' ' || abs(atoi(*(room+head->r+1)+head->c+1)-code)==1) && *(*(room+head->r+1)+head->c+1) != '#' && *(*(room+head->r+1)+head->c+1) != 'x') // SE, no change in dist.
                 {
+                    printf("Slut\n");
+                    printf("%d\n", atoi(*(room+head->r+1)+head->c+1));
                     head = move_SE(room,head,c);
                 }                
-                else if ((*(*(room+head->r)+head->c-1) == ' ' || abs((int)*(*(room+head->r)+head->c-1)-code)) && *(*(room+head->r)+head->c-1) != '#') // Left, +1 dist.
+                else if ((*(*(room+head->r)+head->c-1) == ' ' || abs(atoi(*(room+head->r)+head->c-1)-code)==1) && *(*(room+head->r)+head->c-1) != '#' && *(*(room+head->r)+head->c-1) != 'x') // Left, +1 dist.
                 {
+                    printf("Bingo\n");
                     head = move_left(room,head,c);
                 }
-                else if ((*(*(room+head->r+1)+head->c) == ' ' || abs((int)*(*(room+head->r+1)+head->c)-code)) && *(*(room+head->r+1)+head->c) != '#') // Down, +1 dist.
+                else if ((*(*(room+head->r+1)+head->c) == ' ' || abs(atoi(*(room+head->r+1)+head->c)-code)==1) && *(*(room+head->r+1)+head->c) != '#' && *(*(room+head->r+1)+head->c) != 'x') // Down, +1 dist.
                 {
+                    printf("work\n");
                     head = move_down(room,head,c);
                 }
-                else if ((*(*(room+head->r+1)+head->c-1) == ' ' || abs((int)*(*(room+head->r+1)+head->c-1)-code)) && *(*(room+head->r+1)+head->c-1) != '#') // SW, +2 dist.
+                else if ((*(*(room+head->r+1)+head->c-1) == ' ' || abs(atoi(*(room+head->r+1)+head->c-1)-code)==1) && *(*(room+head->r+1)+head->c-1) != '#' && *(*(room+head->r+1)+head->c-1) != 'x') // SW, +2 dist.
                 {
+                    printf("ditto\n");
                     head = move_SW(room,head,c);
                 }
             }
@@ -542,25 +560,25 @@ path* move_inc_dist(char** room, path* head, path* dest, int code, int quadrant)
         }
         case 4: 
         {
-            if (*(*(room+head->r-1)+head->c) == ' ' || *(*(room+head->r)+head->c-1) == ' ' || abs((int)*(*(room+head->r-1)+head->c)-code) == 1 || abs((int)*(*(room+head->r)+head->c-1)-code) == 1)
+            if (*(*(room+head->r-1)+head->c) == ' ' || *(*(room+head->r)+head->c-1) == ' ' || abs(atoi(*(room+head->r-1)+head->c)-code) == 1 || abs(atoi(*(room+head->r)+head->c-1)-code) == 1)
             {
-                if ((*(*(room+head->r+1)+head->c-1) == ' ' || abs((int)*(*(room+head->r+1)+head->c-1)-code)) && *(*(room+head->r+1)+head->c-1) != '#') // SW, no change in dist.
+                if ((*(*(room+head->r+1)+head->c-1) == ' ' || abs(atoi(*(room+head->r+1)+head->c-1)-code)==1) && *(*(room+head->r+1)+head->c-1) != '#' && *(*(room+head->r+1)+head->c-1) != 'x') // SW, no change in dist.
                 {
                     head = move_SW(room,head,c);
                 }
-                else if ((*(*(room+head->r-1)+head->c+1) == ' ' || abs((int)*(*(room+head->r-1)+head->c+1)-code)) && *(*(room+head->r-1)+head->c+1) != '#') // NE, no change in dist.
+                else if ((*(*(room+head->r-1)+head->c+1) == ' ' || abs(atoi(*(room+head->r-1)+head->c+1)-code)==1) && *(*(room+head->r-1)+head->c+1) != '#' && *(*(room+head->r-11)+head->c+1) != 'x') // NE, no change in dist.
                 {
                     head = move_NE(room,head,c);
                 }                
-                else if ((*(*(room+head->r)+head->c-1) == ' ' || abs((int)*(*(room+head->r)+head->c-1)-code)) && *(*(room+head->r)+head->c-1) != '#') // Left, +1 dist.
+                else if ((*(*(room+head->r)+head->c-1) == ' ' || abs(atoi(*(room+head->r)+head->c-1)-code)==1) && *(*(room+head->r)+head->c-1) != '#' && *(*(room+head->r)+head->c-1) != 'x') // Left, +1 dist.
                 {
                     head = move_left(room,head,c);
                 }
-                else if ((*(*(room+head->r-1)+head->c) == ' ' || abs((int)*(*(room+head->r-1)+head->c)-code)) && *(*(room+head->r-1)+head->c) != '#') // Up, +1 dist.
+                else if ((*(*(room+head->r-1)+head->c) == ' ' || abs(atoi(*(room+head->r-1)+head->c)-code)==1) && *(*(room+head->r-1)+head->c) != '#' && *(*(room+head->r-1)+head->c) != 'x') // Up, +1 dist.
                 {
                     head = move_up(room,head,c);
                 }
-                else if ((*(*(room+head->r-1)+head->c-1) == ' ' || abs((int)*(*(room+head->r-1)+head->c-1)-code)) && *(*(room+head->r-1)+head->c-1) != '#') // NW, +2 dist.
+                else if ((*(*(room+head->r-1)+head->c-1) == ' ' || abs(atoi(*(room+head->r-1)+head->c-1)-code)==1) && *(*(room+head->r-1)+head->c-1) != '#' && *(*(room+head->r-1)+head->c-1) != 'x') // NW, +2 dist.
                 {
                     head = move_NW(room,head,c);
                 }
@@ -575,11 +593,11 @@ path* move_inc_dist(char** room, path* head, path* dest, int code, int quadrant)
         {
             if (dest->c == head->c)
             {
-                if ((*(*(room+head->r)+head->c-1) == ' ' || abs((int)*(*(room+head->r)+head->c-1)-code)) && *(*(room+head->r)+head->c-1) != '#') // left, +1 to dist.
+                if ((*(*(room+head->r)+head->c-1) == ' ' || abs(atoi(*(room+head->r)+head->c-1)-code)==1) && *(*(room+head->r)+head->c-1) != '#' && *(*(room+head->r)+head->c-1) != 'x') // left, +1 to dist.
                 {
                     head = move_left(room,head,c);
                 }
-                else if ((*(*(room+head->r)+head->c+1) == ' ' || abs((int)*(*(room+head->r)+head->c+1)-code)) && *(*(room+head->r)+head->c+1) != '#') // right, +1 to dist.
+                else if ((*(*(room+head->r)+head->c+1) == ' ' || abs(atoi(*(room+head->r)+head->c+1)-code)==1) && *(*(room+head->r)+head->c+1) != '#' && *(*(room+head->r)+head->c+1) != 'x') // right, +1 to dist.
                 {
                     head = move_right(room,head,c);
                 }
@@ -590,11 +608,12 @@ path* move_inc_dist(char** room, path* head, path* dest, int code, int quadrant)
             }
             else if (dest->r == head->r)
             {
-                if ((*(*(room+head->r-1)+head->c) == ' ' || abs((int)*(*(room+head->r-1)+head->c)-code)) && *(*(room+head->r-1)+head->c) != '#') // up, +1 to dist.
+                printf("Hit\n");
+                if ((*(*(room+head->r-1)+head->c) == ' ' || abs(atoi(*(room+head->r-1)+head->c)-code)==1) && *(*(room+head->r-1)+head->c) != '#' && *(*(room+head->r-1)+head->c) != 'x') // up, +1 to dist.
                 {
                     head = move_up(room,head,c);
                 }
-                else if ((*(*(room+head->r+1)+head->c) == ' ' || abs((int)*(*(room+head->r+1)+head->c)-code)) && *(*(room+head->r+1)+head->c) != '#') // down, +1 to dist.
+                else if ((*(*(room+head->r+1)+head->c) == ' ' || abs(atoi(*(room+head->r+1)+head->c)-code)==1) && *(*(room+head->r+1)+head->c) != '#' && *(*(room+head->r+1)+head->c) != 'x') // down, +1 to dist.
                 {
                     head = move_down(room,head,c);
                 }
@@ -613,14 +632,14 @@ path* move_inc_dist(char** room, path* head, path* dest, int code, int quadrant)
     return head;
 }
 
-
+*/
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // old algorithm, works.
 //
-/*
+
 
 path* move_inc_dist (char** room, path* head_S, path* head_F, int row_dest, int column_dest, int dist, int code)
 {
@@ -678,7 +697,7 @@ path* move_inc_dist (char** room, path* head_S, path* head_F, int row_dest, int 
 
     return head;
 }
-*/
+
 path* deadend_filler (char** room, path* head)
 {
     path* temp = malloc(sizeof(path));
