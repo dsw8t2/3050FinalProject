@@ -18,7 +18,7 @@ path* move_inc_dist(char**,path*,path*,int,int,int,int);
 path* deadend_filler(char**,path*);
 void clear(char**,int);
 int activate(path**,char**,path*);
-int adjacent(int,int,int,int);
+int adjacent(path*,path*);
 void rewind_path(char**,path*);
 
 path* move_left(char**,path*,char);
@@ -131,11 +131,11 @@ int distance (int row_current, int column_current, int row_dest, int column_dest
     return abs(row_current-row_dest)+abs(column_current-column_dest);
 }
 
-int adjacent (int Srow, int Scol, int Frow, int Fcol)
+int adjacent (path* head, path* head2)
 {
-    if (distance(Srow,Scol,Frow,Fcol) == 1) // side by side
+    if (distance(head->r, head->c, head2->r, head2->c) == 1) // side by side
         return 1;
-    else if (abs(head->r - dest->r) == 1 && abs(head->c - dest->c) == 1) // diagonal
+    else if (abs(head->r - head2->r) == 1 && abs(head->c - head2->c) == 1) // diagonal
         return 1;
     else
         return 0;
@@ -281,7 +281,7 @@ path* move (char** room, path* head_S, path* head_F, path* dest, int code)
     int i;
     for (i=0; i<20; i++)
     {
-        if (adjacent(head->r, head->c, head2->r, head2->c))
+        if (adjacent(head, head2))
         {
             rewind_path(room,head);
             return head;
